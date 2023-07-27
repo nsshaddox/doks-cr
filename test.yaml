@@ -1,0 +1,16 @@
+apiVersion: apps.my.domain/v1
+kind: App
+metadata:
+  name: my-app
+  namespace: default
+spec:
+  frontend:
+    image: "my-frontend-image:v1"
+    replicas: 3
+  backend:
+    image: "my-backend-image:v1"
+    replicas: 2
+status:
+  frontendReady: false
+  backendReady: false
+  podNames: []
