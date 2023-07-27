@@ -24,13 +24,13 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 type FrontendSpec struct {
-	Image    string `json:"image"`
-	Replicas *int32 `json:"replicas"`
+	Image string `json:"image"`
+	// Replicas *int32 `json:"replicas"`
 }
 
 type BackendSpec struct {
-	Image    string `json:"image"`
-	Replicas *int32 `json:"replicas"`
+	Image string `json:"image"`
+	// Replicas *int32 `json:"replicas"`
 }
 
 // AppSpec defines the desired state of App

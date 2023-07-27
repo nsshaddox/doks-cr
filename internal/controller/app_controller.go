@@ -2,6 +2,8 @@ package controller
 
 import (
 	"context"
+	"fmt"
+
 	// "runtime"
 
 	corev1 "k8s.io/api/core/v1"
@@ -42,8 +44,8 @@ func (r *AppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		return ctrl.Result{}, err
 	}
 
-	// Define a new Pod object
-	pod := newPodForCR(app)
+	// Define a new Pod object for frontend
+	pod := newPodForCR(app, "frontend")
 
 	// Check if this Pod already exists
 	found := &corev1.Pod{}
@@ -55,16 +57,31 @@ func (r *AppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 			if err != nil {
 				return ctrl.Result{}, err
 			}
-
-			// Pod created successfully - don't requeue
-			return ctrl.Result{}, nil
+		} else {
+			// Error reading the object - requeue the request.
+			return ctrl.Result{}, err
 		}
-		// Error reading the object - requeue the request.
-		return ctrl.Result{}, err
 	}
 
-	log.Info("Skip reconcile: Pod already exists", "Namespace", found.Namespace, "Name", found.Name)
+	// Repeat the process for the backend
+	pod = newPodForCR(app, "backend")
 
+	found = &corev1.Pod{}
+	err = r.Get(ctx, types.NamespacedName{Name: pod.Name, Namespace: pod.Namespace}, found)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			log.Info("Creating a new Pod", "Namespace", pod.Namespace, "Name", pod.Name)
+			err = r.Create(ctx, pod)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+		} else {
+			// Error reading the object - requeue the request.
+			return ctrl.Result{}, err
+		}
+	}
+
+	// No need to requeue, we're done
 	return ctrl.Result{}, nil
 }
 
@@ -75,21 +92,30 @@ func (r *AppReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func newPodForCR(cr *myappv1.App) *corev1.Pod {
+func newPodForCR(cr *myappv1.App, component string) *corev1.Pod {
 	labels := map[string]string{
-		"app": cr.Name,
+		"app":       cr.Name,
+		"component": component,
 	}
+
+	image := ""
+	if component == "frontend" {
+		image = cr.Spec.Frontend.Image
+	} else if component == "backend" {
+		image = cr.Spec.Backend.Image
+	}
+
 	return &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      cr.Name + "-pod",
+			Name:      fmt.Sprintf("%s-%s", cr.Name, component),
 			Namespace: cr.Namespace,
 			Labels:    labels,
 		},
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{
 				{
-					Name:  "nginx",
-					Image: "nginx:1.7.9",
+					Name:  fmt.Sprintf("%s-container", component),
+					Image: image,
 					Ports: []corev1.ContainerPort{{
 						ContainerPort: 80,
 					}},

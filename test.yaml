@@ -5,11 +5,13 @@ metadata:
   namespace: default
 spec:
   frontend:
-    image: "my-frontend-image:v1"
-    replicas: 3
+    image: "nginx:latest"
+    # replicas: 3
   backend:
-    image: "my-backend-image:v1"
-    replicas: 2
+    image: "nginx:1.7.9"
+    # replicas: 2
+
+# How do I use this?
 status:
   frontendReady: false
   backendReady: false
