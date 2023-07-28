@@ -1,4 +1,5 @@
-# chatgpt
+# DevOps Knowledge Share Custom Resource
+DevOps Knowledge Share as a Custom Resource in Kubernetes.
 // TODO(user): Add simple overview of use/purpose
 
 ## Description
