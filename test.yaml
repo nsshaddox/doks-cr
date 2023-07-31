@@ -5,13 +5,10 @@ metadata:
   namespace: default
 spec:
   frontend:
-    image: "nginx:latest"
-    # replicas: 3
+    image: "cfculler/dob-ui:latest"
   backend:
-    image: "nginx:1.7.9"
-    # replicas: 2
+    image: "cfculler/dob-api:latest"
 
-# How do I use this?
 status:
   frontendReady: false
   backendReady: false

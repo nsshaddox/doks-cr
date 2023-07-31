@@ -99,22 +99,22 @@ func (r *AppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		}
 	}
 
-	// // Repeat the process for the backend
-	// service = newServiceForCR(app, "backend")
-	// foundService = &corev1.Service{}
-	// err = r.Get(ctx, types.NamespacedName{Name: service.Name, Namespace: service.Namespace}, foundService)
-	// if err != nil {
-	// 	if errors.IsNotFound(err) {
-	// 		log.Info("Creating a new Service", "Namespace", service.Namespace, "Name", service.Name)
-	// 		err = r.Create(ctx, service)
-	// 		if err != nil {
-	// 			return ctrl.Result{}, err
-	// 		}
-	// 	} else {
-	// 		// Error reading the object - requeue the request.
-	// 		return ctrl.Result{}, err
-	// 	}
-	// }
+	// Repeat the process for the backend
+	service = newServiceForCR(app, "backend")
+	foundService = &corev1.Service{}
+	err = r.Get(ctx, types.NamespacedName{Name: service.Name, Namespace: service.Namespace}, foundService)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			log.Info("Creating a new Service", "Namespace", service.Namespace, "Name", service.Name)
+			err = r.Create(ctx, service)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+		} else {
+			// Error reading the object - requeue the request.
+			return ctrl.Result{}, err
+		}
+	}
 
 	// No need to requeue, we're done
 	return ctrl.Result{}, nil
@@ -134,10 +134,13 @@ func newPodForCR(cr *myappv1.App, component string) *corev1.Pod {
 	}
 
 	image := ""
+	port := 0
 	if component == "frontend" {
 		image = cr.Spec.Frontend.Image
+		port = 3000
 	} else if component == "backend" {
 		image = cr.Spec.Backend.Image
+		port = 8080
 	}
 
 	return &corev1.Pod{
@@ -155,8 +158,14 @@ func newPodForCR(cr *myappv1.App, component string) *corev1.Pod {
 					Name:  fmt.Sprintf("%s-container", component),
 					Image: image,
 					Ports: []corev1.ContainerPort{{
-						ContainerPort: 80,
+						ContainerPort: int32(port),
 					}},
+					Env: []corev1.EnvVar{
+						{
+							Name:  "KNOWLEDGE_SHARE_API",
+							Value: "http://my-app-backend-service:8080",
+						},
+					},
 				},
 			},
 		},
@@ -167,6 +176,13 @@ func newServiceForCR(cr *myappv1.App, component string) *corev1.Service {
 	labels := map[string]string{
 		"app":       cr.Name,
 		"component": component,
+	}
+
+	port := 0
+	if component == "frontend" {
+		port = 3000
+	} else if component == "backend" {
+		port = 8080
 	}
 
 	return &corev1.Service{
@@ -183,8 +199,8 @@ func newServiceForCR(cr *myappv1.App, component string) *corev1.Service {
 			Ports: []corev1.ServicePort{
 				{
 					Protocol:   "TCP",
-					Port:       80,
-					TargetPort: intstr.FromInt(80),
+					Port:       int32(port),
+					TargetPort: intstr.FromInt(port),
 				},
 			},
 			Type: corev1.ServiceTypeClusterIP,
