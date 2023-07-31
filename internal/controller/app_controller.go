@@ -11,6 +11,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -81,6 +82,40 @@ func (r *AppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		}
 	}
 
+	// Create frontend service
+	service := newServiceForCR(app, "frontend")
+	foundService := &corev1.Service{}
+	err = r.Get(ctx, types.NamespacedName{Name: service.Name, Namespace: service.Namespace}, foundService)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			log.Info("Creating a new Service", "Namespace", service.Namespace, "Name", service.Name)
+			err = r.Create(ctx, service)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+		} else {
+			// Error reading the object - requeue the request.
+			return ctrl.Result{}, err
+		}
+	}
+
+	// // Repeat the process for the backend
+	// service = newServiceForCR(app, "backend")
+	// foundService = &corev1.Service{}
+	// err = r.Get(ctx, types.NamespacedName{Name: service.Name, Namespace: service.Namespace}, foundService)
+	// if err != nil {
+	// 	if errors.IsNotFound(err) {
+	// 		log.Info("Creating a new Service", "Namespace", service.Namespace, "Name", service.Name)
+	// 		err = r.Create(ctx, service)
+	// 		if err != nil {
+	// 			return ctrl.Result{}, err
+	// 		}
+	// 	} else {
+	// 		// Error reading the object - requeue the request.
+	// 		return ctrl.Result{}, err
+	// 	}
+	// }
+
 	// No need to requeue, we're done
 	return ctrl.Result{}, nil
 }
@@ -110,6 +145,9 @@ func newPodForCR(cr *myappv1.App, component string) *corev1.Pod {
 			Name:      fmt.Sprintf("%s-%s", cr.Name, component),
 			Namespace: cr.Namespace,
 			Labels:    labels,
+			OwnerReferences: []metav1.OwnerReference{
+				*metav1.NewControllerRef(cr, myappv1.GroupVersion.WithKind("App")),
+			},
 		},
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{
@@ -121,6 +159,35 @@ func newPodForCR(cr *myappv1.App, component string) *corev1.Pod {
 					}},
 				},
 			},
+		},
+	}
+}
+
+func newServiceForCR(cr *myappv1.App, component string) *corev1.Service {
+	labels := map[string]string{
+		"app":       cr.Name,
+		"component": component,
+	}
+
+	return &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-%s-service", cr.Name, component),
+			Namespace: cr.Namespace,
+			Labels:    labels,
+			OwnerReferences: []metav1.OwnerReference{
+				*metav1.NewControllerRef(cr, myappv1.GroupVersion.WithKind("App")),
+			},
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: labels,
+			Ports: []corev1.ServicePort{
+				{
+					Protocol:   "TCP",
+					Port:       80,
+					TargetPort: intstr.FromInt(80),
+				},
+			},
+			Type: corev1.ServiceTypeClusterIP,
 		},
 	}
 }
