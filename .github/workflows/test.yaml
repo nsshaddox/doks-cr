@@ -39,7 +39,7 @@ jobs:
 
       - name: 'Make Manifest'
         run: |
-            make manifest
+            make manifests
 
       - name: 'Grab AKS Credentials'
         run: |
