@@ -1,10 +1,11 @@
 # File: .github/workflows/test.yml
 
-name: Run Azure Login with OIDC, Push to ACI, and Deploy
+name: Run Azure AKS CRD Install For APP
 on:
   push:
     branches:
       - stoof
+      - main
 
 permissions:
       id-token: write
@@ -28,11 +29,26 @@ jobs:
           az group list
           pwd
 
-      - name: 'Install aks CLI'
-        run: |
-          az aks install-cli
+    #   - name: 'Install aks CLI'
+    #     run: |
+    #       az aks install-cli
 
-      - name: 'Grab Credentials'
+      - name: 'Make Build'
         run: |
-          az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
+            make build
 
+      - name: 'Make Manifest'
+        run: |
+            make manifest
+
+      - name: 'Grab AKS Credentials'
+        run: |
+          az aks get-credentials --resource-group doks --name doks
+
+      - name: 'Create Yaml File'
+        run: |
+          ./bin/kustomize /config/default > stoof.yaml
+
+      - name: 'Apply Yaml File'
+        run: |
+          kubectl apply -f stoof.yaml
