@@ -47,11 +47,11 @@ jobs:
 
       - name: 'Where am I?'
         run: |
-          ls
+          ls ./bin
 
       - name: 'Create Yaml File'
         run: |
-          ./bin/kustomize /config/default > stoof.yaml
+          ../bin/kustomize build ./config/default > stoof.yaml
 
       - name: 'Apply Yaml File'
         run: |
