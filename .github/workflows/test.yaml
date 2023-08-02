@@ -49,26 +49,34 @@ jobs:
         run: |
           ls
 
-      - name: 'Grab Kustomize Executable'
+      - name: 'Make Kustomize'
         run: |
-          wget -P ./bin https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.1.1/kustomize_v5.1.1_linux_amd64.tar.gz
+          make kustomize
 
-      - name: 'Where is my Tar File?'
+      - name: 'Make Deploy'
         run: |
-            ls ./bin
+          make deploy
 
-      - name: 'un Tar the Executable'
-        run: |
-          tar -C ./bin -xvf ./bin/kustomize_v5.1.1_linux_amd64.tar.gz
+    #   - name: 'Grab Kustomize Executable'
+    #     run: |
+    #       wget -P ./bin https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.1.1/kustomize_v5.1.1_linux_amd64.tar.gz
 
-      - name: 'Create Yaml File'
-        run: |
-          ./bin/kustomize build ./config/default > stoof.yaml
+    #   - name: 'Where is my Tar File?'
+    #     run: |
+    #         ls ./bin
 
-      - name: 'Print out stoof.txt'
-        run: |
-          cat stoof.yaml
+    #   - name: 'un Tar the Executable'
+    #     run: |
+    #       tar -C ./bin -xvf ./bin/kustomize_v5.1.1_linux_amd64.tar.gz
 
-      - name: 'Apply Yaml File'
-        run: |
-          kubectl apply -f stoof.yaml
+    #   - name: 'Create Yaml File'
+    #     run: |
+    #       ./bin/kustomize build ./config/default > stoof.yaml
+
+    #   - name: 'Print out stoof.txt'
+    #     run: |
+    #       cat stoof.yaml
+
+    #   - name: 'Apply Yaml File'
+    #     run: |
+    #       kubectl apply -f stoof.yaml

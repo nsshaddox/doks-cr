@@ -28,6 +28,8 @@ type AppReconciler struct {
 //+kubebuilder:rbac:groups=apps.my.domain,resources=apps,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=apps.my.domain,resources=apps/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=apps.my.domain,resources=apps/finalizers,verbs=update
+//+kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch;create;update;patch;delete
 
 func (r *AppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
