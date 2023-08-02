@@ -51,15 +51,17 @@ jobs:
 
       - name: 'Grab Kustomize Executable'
         run: |
-          wget https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.1.1/kustomize_v5.1.1_linux_amd64.tar.gz
-
-      - name: 'un Tar the Executable'
-        run: |
+          cd bin |
+          wget https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.1.1/kustomize_v5.1.1_linux_amd64.tar.gz |
           tar -xvf kustomize_v5.1.1_linux_amd64.tar.gz
+
+    #   - name: 'un Tar the Executable'
+    #     run: |
+    #       tar -xvf kustomize_v5.1.1_linux_amd64.tar.gz
 
       - name: 'Create Yaml File'
         run: |
-          ./kustomize build ./config/default > stoof.yaml
+          ./bin/kustomize build ./config/default > stoof.yaml
 
       - name: 'Print out stoof.txt'
         run: |
