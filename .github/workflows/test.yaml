@@ -59,7 +59,7 @@ jobs:
 
       - name: 'un Tar the Executable'
         run: |
-          tar -xvf ./bin/kustomize_v5.1.1_linux_amd64.tar.gz
+          tar -C ./bin -xvf ./bin/kustomize_v5.1.1_linux_amd64.tar.gz
 
       - name: 'Create Yaml File'
         run: |
