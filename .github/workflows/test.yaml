@@ -45,6 +45,10 @@ jobs:
         run: |
           az aks get-credentials --resource-group doks --name doks
 
+      - name: 'Where am I?'
+        run: |
+          ls
+
       - name: 'Create Yaml File'
         run: |
           ./bin/kustomize /config/default > stoof.yaml
