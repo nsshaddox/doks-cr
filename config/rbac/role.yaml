@@ -8,6 +8,8 @@ rules:
   - apps.my.domain
   resources:
   - apps
+  - pods
+  - services
   verbs:
   - create
   - delete
@@ -29,16 +31,4 @@ rules:
   verbs:
   - get
   - patch
-  - update
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  - services
-  verbs:
-  - get
-  - watch
-  - list
-  - create
-  - delete
   - update
