@@ -65,7 +65,7 @@ jobs:
 
       - name: 'Print out stoof.txt'
         run: |
-          echo stoof.yaml
+          cat stoof.yaml
 
       - name: 'Apply Yaml File'
         run: |
