@@ -47,9 +47,9 @@ jobs:
         run: |
           make docker-buildx
 
-      - name: 'Make docker-push'
-        run: |
-          make docker-push
+    #   - name: 'Make docker-push'
+    #     run: |
+    #       make docker-push
 
       - name: 'Grab AKS Credentials'
         run: |
