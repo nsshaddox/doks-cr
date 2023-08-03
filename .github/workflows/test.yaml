@@ -55,6 +55,10 @@ jobs:
         run: |
           az aks get-credentials --resource-group doks --name doks-2
 
+      - name: 'Make kustomize'
+        run: |
+          make kustomize
+
       - name: 'Make Un Deploy'
         run: |
           make undeploy
