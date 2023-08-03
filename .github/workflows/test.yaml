@@ -53,7 +53,7 @@ jobs:
 
       - name: 'Grab AKS Credentials'
         run: |
-          az aks get-credentials --resource-group doks --name doks
+          az aks get-credentials --resource-group doks --name doks-2
 
       - name: 'Make Deploy'
         run: |
