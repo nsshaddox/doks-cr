@@ -55,9 +55,9 @@ jobs:
         run: |
           az aks get-credentials --resource-group doks --name doks-2
 
-    #   - name: 'Make Un Deploy'
-    #     run: |
-    #       make undeploy
+      - name: 'Make Un Deploy'
+        run: |
+          make undeploy
 
       - name: 'Make Deploy'
         run: |
