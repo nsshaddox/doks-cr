@@ -39,13 +39,13 @@ jobs:
         run: |
             make build
 
-      - name: 'Make Manifest'
-        run: |
-            make manifests
+    #   - name: 'Make Manifest'
+    #     run: |
+    #         make manifests
 
       - name: 'Make docker-build'
         run: |
-          make docker-build
+          make docker-buildx
 
       - name: 'Make docker-push'
         run: |
