@@ -70,7 +70,7 @@ spec:
         - /manager
         args:
         - --leader-elect
-        image: densell321/doks-cr:1.0
+        image: densell321/controller:latest
         name: manager
         securityContext:
           allowPrivilegeEscalation: false

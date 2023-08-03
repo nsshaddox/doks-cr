@@ -29,9 +29,11 @@ jobs:
           az group list
           pwd
 
-    #   - name: 'Install aks CLI'
-    #     run: |
-    #       az aks install-cli
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: 'Make Build'
         run: |
@@ -41,42 +43,18 @@ jobs:
         run: |
             make manifests
 
+      - name: 'Make docker-build'
+        run: |
+          make docker-build
+
+      - name: 'Make docker-push'
+        run: |
+          make docker-push
+
       - name: 'Grab AKS Credentials'
         run: |
           az aks get-credentials --resource-group doks --name doks
 
-      - name: 'Where am I?'
-        run: |
-          ls
-
-      - name: 'Make Kustomize'
-        run: |
-          make kustomize
-
       - name: 'Make Deploy'
         run: |
           make deploy
-
-    #   - name: 'Grab Kustomize Executable'
-    #     run: |
-    #       wget -P ./bin https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.1.1/kustomize_v5.1.1_linux_amd64.tar.gz
-
-    #   - name: 'Where is my Tar File?'
-    #     run: |
-    #         ls ./bin
-
-    #   - name: 'un Tar the Executable'
-    #     run: |
-    #       tar -C ./bin -xvf ./bin/kustomize_v5.1.1_linux_amd64.tar.gz
-
-    #   - name: 'Create Yaml File'
-    #     run: |
-    #       ./bin/kustomize build ./config/default > stoof.yaml
-
-    #   - name: 'Print out stoof.txt'
-    #     run: |
-    #       cat stoof.yaml
-
-    #   - name: 'Apply Yaml File'
-    #     run: |
-    #       kubectl apply -f stoof.yaml
