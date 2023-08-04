@@ -60,6 +60,7 @@ jobs:
           make kustomize
 
       - name: 'Make Un Deploy'
+        continue-on-error: true
         run: |
           make undeploy
 
