@@ -85,23 +85,23 @@ func (r *AppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	}
 
 	// Define a new Pod object for nginx
-	// nginxPod := newNginxPodForCR(app)
+	nginxPod := newNginxPodForCR(app)
 
-	// // Check if this Pod already exists
-	// found = &corev1.Pod{}
-	// err = r.Get(ctx, types.NamespacedName{Name: nginxPod.Name, Namespace: nginxPod.Namespace}, found)
-	// if err != nil {
-	// 	if errors.IsNotFound(err) {
-	// 		log.Info("Creating a new Nginx Pod", "Namespace", nginxPod.Namespace, "Name", nginxPod.Name)
-	// 		err = r.Create(ctx, nginxPod)
-	// 		if err != nil {
-	// 			return ctrl.Result{}, err
-	// 		}
-	// 	} else {
-	// 		// Error reading the object - requeue the request.
-	// 		return ctrl.Result{}, err
-	// 	}
-	// }
+	// Check if this Pod already exists
+	found = &corev1.Pod{}
+	err = r.Get(ctx, types.NamespacedName{Name: nginxPod.Name, Namespace: nginxPod.Namespace}, found)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			log.Info("Creating a new Nginx Pod", "Namespace", nginxPod.Namespace, "Name", nginxPod.Name)
+			err = r.Create(ctx, nginxPod)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+		} else {
+			// Error reading the object - requeue the request.
+			return ctrl.Result{}, err
+		}
+	}
 
 	// Create frontend service
 	service := newServiceForCR(app, "frontend")
@@ -229,31 +229,31 @@ func newServiceForCR(cr *myappv1.App, component string) *corev1.Service {
 	}
 }
 
-// func newNginxPodForCR(cr *myappv1.App) *corev1.Pod {
-// 	labels := map[string]string{
-// 		"app":       cr.Name,
-// 		"component": "nginx",
-// 	}
+func newNginxPodForCR(cr *myappv1.App) *corev1.Pod {
+	labels := map[string]string{
+		"app":       cr.Name,
+		"component": "nginx",
+	}
 
-// 	return &corev1.Pod{
-// 		ObjectMeta: metav1.ObjectMeta{
-// 			Name:      fmt.Sprintf("%s-%s", cr.Name, "nginx"),
-// 			Namespace: cr.Namespace,
-// 			Labels:    labels,
-// 			OwnerReferences: []metav1.OwnerReference{
-// 				*metav1.NewControllerRef(cr, myappv1.GroupVersion.WithKind("App")),
-// 			},
-// 		},
-// 		Spec: corev1.PodSpec{
-// 			Containers: []corev1.Container{
-// 				{
-// 					Name:  "nginx-container",
-// 					Image: "nginx:latest",
-// 					Ports: []corev1.ContainerPort{{
-// 						ContainerPort: 80,
-// 					}},
-// 				},
-// 			},
-// 		},
-// 	}
-// }
+	return &corev1.Pod{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-%s", cr.Name, "nginx"),
+			Namespace: cr.Namespace,
+			Labels:    labels,
+			OwnerReferences: []metav1.OwnerReference{
+				*metav1.NewControllerRef(cr, myappv1.GroupVersion.WithKind("App")),
+			},
+		},
+		Spec: corev1.PodSpec{
+			Containers: []corev1.Container{
+				{
+					Name:  "nginx-container",
+					Image: "nginx:latest",
+					Ports: []corev1.ContainerPort{{
+						ContainerPort: 80,
+					}},
+				},
+			},
+		},
+	}
+}
